@@ -706,8 +706,25 @@
     .stars { color: var(--warning); letter-spacing: 0.08em; }
     .trust-badge p { margin: 16px 0 0; color: var(--text-2); line-height: 1.6; }
 
-    .trust-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .mini-trust { padding: 24px; }
+    .trust-cards {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    }
+
+    .trust-cards-track {
+      display: flex;
+      width: max-content;
+      gap: 18px;
+      animation: socialProofScroll 24s linear infinite;
+      will-change: transform;
+    }
+
+    .trust-cards:hover .trust-cards-track { animation-play-state: paused; }
+
+    .mini-trust { flex: 0 0 300px; padding: 24px; }
     .mini-trust strong { display: block; margin-bottom: 8px; font-size: 26px; letter-spacing: -0.05em; }
     .mini-trust span { color: var(--text-2); font-size: 14px; line-height: 1.5; }
 
@@ -893,6 +910,33 @@
     .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     .service-card { min-height: 280px; }
 
+    .service-grid > .service-card {
+      transform: translateY(0) scale(1);
+      transition:
+        transform 420ms var(--ease),
+        border-color 420ms var(--ease),
+        box-shadow 420ms var(--ease),
+        background 420ms var(--ease);
+      will-change: transform;
+    }
+
+    .service-grid > .service-card .card-icon,
+    .service-grid > .service-card h3,
+    .service-grid > .service-card p,
+    .service-grid > .service-card .card-link {
+      transition: transform 360ms var(--ease), color 360ms var(--ease), opacity 360ms var(--ease);
+    }
+
+    .service-grid > .service-card:hover {
+      transform: translateY(-10px) scale(1.012);
+      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.032)), var(--surface-2);
+    }
+
+    .service-grid > .service-card:hover .card-icon { transform: translateY(-3px) rotate(-2deg); }
+    .service-grid > .service-card:hover h3 { transform: translateY(-2px); }
+    .service-grid > .service-card:hover p { transform: translateY(-1px); }
+    .service-grid > .service-card:hover .card-link { transform: translateX(4px); }
+
     .case-study {
       display: grid;
       grid-template-columns: 1fr 0.9fr;
@@ -949,6 +993,7 @@
       overflow: hidden;
       padding: var(--space-section) 0;
       text-align: center;
+      isolation: isolate;
     }
 
     .cta::before {
@@ -963,6 +1008,25 @@
       filter: blur(50px);
       transform: translate(-50%, -50%);
       animation: glow 7s ease-in-out infinite;
+    }
+
+    .cta::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 0;
+      width: min(720px, 82vw);
+      aspect-ratio: 1;
+      border: 1px solid rgba(139, 92, 246, 0.24);
+      border-radius: 999px;
+      box-shadow:
+        0 0 0 90px rgba(139, 92, 246, 0.055),
+        0 0 0 190px rgba(0, 212, 164, 0.032);
+      transform: translate(-50%, -50%) scale(0.72);
+      opacity: 0;
+      animation: ctaWave 5.6s var(--ease) infinite;
+      pointer-events: none;
     }
 
     .cta-content { position: relative; z-index: 1; max-width: 760px; margin-inline: auto; }
@@ -1037,7 +1101,13 @@
     .fade-up.is-visible { opacity: 1; transform: translateY(0); }
 
     @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes socialProofScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     @keyframes glow { 0%, 100% { opacity: 0.62; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.04); } }
+    @keyframes ctaWave {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+      18% { opacity: 0.5; }
+      70%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.18); }
+    }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
     :focus-visible { outline: 2px solid rgba(139,92,246,0.9); outline-offset: 3px; }
@@ -1049,7 +1119,7 @@
       .dashboard-wrap { min-height: auto; }
       .dashboard { transform: none; }
       .trust-grid { grid-template-columns: 1fr; }
-      .feature-grid, .service-grid, .trust-cards, .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .feature-grid, .service-grid, .footer-grid { grid-template-columns: repeat(2, 1fr); }
       .case-visual { border-left: 0; border-top: 1px solid var(--border); }
     }
 
@@ -1059,7 +1129,7 @@
       .hero { padding-top: 68px; }
       .hero-actions { flex-direction: column; }
       .hero-actions .button { width: 100%; }
-      .dashboard-main, .dash-stats, .dash-bottom, .feature-grid, .service-grid, .trust-cards, .footer-grid, .result-grid { grid-template-columns: 1fr; }
+      .dashboard-main, .dash-stats, .dash-bottom, .feature-grid, .service-grid, .footer-grid, .result-grid { grid-template-columns: 1fr; }
       .dash-sidebar { display: none; }
       .floating-card { display: none; }
       .section { padding: 64px 0; }
@@ -1198,9 +1268,14 @@
           <p>Based on 180+ operator and founder reviews for strategy, execution quality, and reporting clarity.</p>
         </div>
         <div class="trust-cards">
-          <div class="panel mini-trust fade-up" style="--delay:80ms"><strong>120+</strong><span>growth experiments launched across paid, lifecycle, and funnel systems.</span></div>
-          <div class="panel mini-trust fade-up" style="--delay:140ms"><strong>32%</strong><span>average CAC reduction across recent optimization engagements.</span></div>
-          <div class="panel mini-trust fade-up" style="--delay:200ms"><strong>24/7</strong><span>dashboard visibility for campaign, revenue, and pipeline signals.</span></div>
+          <div class="trust-cards-track">
+            <div class="panel mini-trust fade-up" style="--delay:80ms"><strong>120+</strong><span>growth experiments launched across paid, lifecycle, and funnel systems.</span></div>
+            <div class="panel mini-trust fade-up" style="--delay:140ms"><strong>32%</strong><span>average CAC reduction across recent optimization engagements.</span></div>
+            <div class="panel mini-trust fade-up" style="--delay:200ms"><strong>24/7</strong><span>dashboard visibility for campaign, revenue, and pipeline signals.</span></div>
+            <div class="panel mini-trust" aria-hidden="true"><strong>120+</strong><span>growth experiments launched across paid, lifecycle, and funnel systems.</span></div>
+            <div class="panel mini-trust" aria-hidden="true"><strong>32%</strong><span>average CAC reduction across recent optimization engagements.</span></div>
+            <div class="panel mini-trust" aria-hidden="true"><strong>24/7</strong><span>dashboard visibility for campaign, revenue, and pipeline signals.</span></div>
+          </div>
         </div>
       </div>
     </section>
